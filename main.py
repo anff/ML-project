@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
 
 import opt
-import analysis
+import regression
 
 from plotly.subplots import make_subplots
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
@@ -19,6 +19,7 @@ from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 def main():
     opt.set_env()
+    regression.run()
 
 
 if __name__ == '__main__':

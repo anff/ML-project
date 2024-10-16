@@ -26,7 +26,7 @@ def gen_data():
 
 def process_data():
     # read csv data
-    df = pd.read_csv('/kaggle/input/stock-prices-of-the-10-largest-fast-food-companies/MCD.csv')
+    df = pd.read_csv('data/MCD.csv')
 
     # I want to crop the time frame starting at 2010 to reduct the amount of data to be processed
     df['Date'] = pd.to_datetime(df['Date'])
