@@ -37,3 +37,5 @@ fig = go.Figure(layout=layout)
 templated_fig = pio.to_templated(fig)
 pio.templates['my_template'] = templated_fig.layout.template
 pio.templates.default = 'my_template'
+
+print("hi")
