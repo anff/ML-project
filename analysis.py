@@ -10,6 +10,19 @@ from pandas.plotting import scatter_matrix
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 def gen_data():
     train_df, test_df = process_data()
 
@@ -24,9 +37,23 @@ def gen_data():
     return X_train, y_train, X_test, y_test
 
 
+# def gen_data():
+#     train_df, test_df = process_data()
+
+#     # They are trying calculate the indicator
+#     y_train = train_df['Close'].copy()
+#     X_train = train_df.drop(['Close'], axis = 1)
+
+#     y_test  = test_df['Close'].copy()
+#     X_test  = test_df.drop(['Close'], axis = 1)
+
+#     X_test.head()
+#     return X_train, y_train, X_test, y_test
+
+
 def process_data():
     # read csv data
-    df = pd.read_csv('data/MCD.csv')
+    df = pd.read_csv('/Users/jiwon24/Desktop/ML_MidtermProj/ML-project/data/MCD.csv')
 
     # I want to crop the time frame starting at 2010 to reduct the amount of data to be processed
     df['Date'] = pd.to_datetime(df['Date'])
@@ -81,6 +108,65 @@ def process_data():
     draw_1(df)
     train_df, test_df = process_df(df)
     return train_df, test_df
+
+
+# def process_data():
+#     # read csv data
+#     df = pd.read_csv('data/MCD.csv')
+
+#     # I want to crop the time frame starting at 2010 to reduct the amount of data to be processed
+#     df['Date'] = pd.to_datetime(df['Date'])
+#     df = df[df['Date'].dt.year >= 2010].copy()
+#     # df = df.copy()
+#     df.index = range(len(df))
+
+#     df.head()
+#     print(df.head())
+#     print(len(df))
+
+#     # plot the trend
+#     fig = make_subplots(rows=2, cols=1)
+#     fig.add_trace(go.Ohlc(x=df.Date,
+#                           open=df.Open,
+#                           high=df.High,
+#                           low=df.Low,
+#                           close=df.Close,
+#                           name='Price'), row=1, col=1)
+
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.Volume, name='Volume'), row=2, col=1)
+
+#     fig.update(layout_xaxis_rangeslider_visible=False)
+#     fig.show()
+
+#     # plot the data close
+#     df_close = df[['Date', 'Close']].copy()
+#     df_close = df_close.set_index('Date')
+#     decomposition = sm.tsa.seasonal_decompose(df_close, model='multiplicative', period=365)
+#     decomposition.plot()
+
+#     # all created indicators
+#     df['EMA_9'] = df['Close'].ewm(9).mean().shift()
+#     df['SMA_5'] = df['Close'].rolling(5).mean().shift()
+#     df['SMA_10'] = df['Close'].rolling(10).mean().shift()
+#     df['SMA_15'] = df['Close'].rolling(15).mean().shift()
+#     df['SMA_30'] = df['Close'].rolling(30).mean().shift()
+
+#     fig = go.Figure()
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.EMA_9, name='EMA 9'))
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.SMA_5, name='SMA 5'))
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.SMA_10, name='SMA 10'))
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.SMA_15, name='SMA 15'))
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.SMA_30, name='SMA 30'))
+#     fig.add_trace(go.Scatter(x=df.Date, y=df.Close, name='Close', opacity=0.2))
+#     fig.show()
+
+#     df['RSI'] = relative_strength_idx(df).fillna(0)
+#     fig = go.Figure(go.Scatter(x=df.Date, y=df.RSI, name='RSI'))
+#     fig.show()
+
+#     draw_1(df)
+#     train_df, test_df = process_df(df)
+#     return train_df, test_df
 
 
 def process_df(df):
