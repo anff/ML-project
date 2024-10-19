@@ -13,18 +13,8 @@ from pandas.plotting import scatter_matrix
 
 
 
-
-
-
-
-
-
-
-
-
-
-def gen_data():
-    train_df, test_df = process_data()
+def gen_data(f2p):
+    train_df, test_df = process_data1(f2p)
 
     # They are trying calculate the indicator
     y_train = train_df['Close'].copy()
@@ -51,7 +41,7 @@ def gen_data():
 #     return X_train, y_train, X_test, y_test
 
 
-def process_data():
+def process_data1():
     # read csv data
     df = pd.read_csv('/Users/jiwon24/Desktop/ML_MidtermProj/ML-project/data/MCD.csv')
 
