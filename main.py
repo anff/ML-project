@@ -15,11 +15,11 @@ from opt import GlobalConst as glb
 
 
 def main():
-    f2p = 'data/MCD.csv'
-    glb.model = 'xgb'
+    f2p = 'data/LKNCY.csv'
+    glb.model = 'enet'
     opt.set_env()
-    analyze.run_flow(f2p)
-    # analyze.run_flow_ideal(f2p)
+    # analyze.run_flow(f2p)
+    analyze.run_flow_ideal(f2p)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import ta
 import plotly.graph_objects as go
+import shap
+
 import process_data
 import regression
 import build_model
@@ -84,15 +86,18 @@ def run_flow_ideal(f2p):
     train_df, test_df = process_data.read_file(f2p)
     train_df, _ = add_indicator(train_df)
 
-    cols = ['sma']
+    cols = ['sma', 'ema']
     X_train = gen_arr(train_df, cols)
     y_train = gen_arr(train_df, ['Close'])
 
     test_df, _ = add_indicator(test_df)
     X_test = gen_arr(test_df, cols)
-    y_train_pred = regression.run_pred(X_train, y_train, X_train)
+    model = build_model.build_model()
+    model.fit(X_train, y_train)
+
+    y_train_pred = model.predict(X_train)
     train_df['pred_close'] = y_train_pred
-    y_pred = regression.run_pred(X_train, y_train, X_test)
+    y_pred = model.predict(X_test)
     test_df['pred_close'] = y_pred
 
     fig = go.Figure()
@@ -101,6 +106,12 @@ def run_flow_ideal(f2p):
     fig.add_trace(go.Scatter(x=test_df.Date, y=test_df.Close, name='golden'))
     fig.add_trace(go.Scatter(x=test_df.Date, y=test_df.pred_close, name='pred_test'))
     fig.show()
+
+    explainer = shap.Explainer(model, X_train)
+    shap_values = explainer(X_test)
+    # Visualize the SHAP values for the first prediction
+    shap.initjs()
+    shap.summary_plot(shap_values, X_test)
 
 #
 # def process_data11(f2p):

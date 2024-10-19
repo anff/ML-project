@@ -33,3 +33,4 @@ class XGBModel(Model):
     def build(self):
         model = xgb.XGBRegressor(max_depth=5, n_estimators=300, learning_rate=0.05)
         return model
+
