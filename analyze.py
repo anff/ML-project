@@ -16,7 +16,7 @@ def run_flow(f2p):
     train_df, test_df = process_data.read_file(f2p)
     train_df, app_df = add_indicator(train_df)
 
-    cols = ['sma']
+    cols = ['sma', 'ema']
     X_train = gen_arr(train_df, cols)
     y_train = gen_arr(train_df, ['Close'])
     X_test = gen_arr(app_df, cols)
@@ -57,6 +57,7 @@ def add_indicator(df):
     col_target = 'Close'
     sma_window = 20
     df['sma'] = ta.trend.sma_indicator(df[col_target], sma_window)
+    df['ema'] = ta.trend.ema_indicator(df[col_target], sma_window)
     df[col_target] = df[col_target].shift(-1) # To make all the indicator features aligned with target
     df_app = df.iloc[[-1]]
     df = df.dropna()
