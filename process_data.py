@@ -5,12 +5,12 @@ import plotly.graph_objects as go
 
 
 def read_file(f2p):
-    r = 0.15 # ratio of test data
+    r = 0.2 # ratio of test data
     cols = ['Date', 'Close'] # The column to use in train
     df = pd.read_csv(f2p)
     df['Date'] = pd.to_datetime(df['Date'])
-    df = df[df['Date'].dt.year >= 2010].copy()
-    # present_oridf(df)
+    df = df[df['Date'].dt.year >= 2020].copy()
+    present_oridf(df)
     n_train = int((1-r)*len(df))
     train_df = df.iloc[:n_train][cols].copy()
     test_df = df.iloc[n_train+1:][cols].copy()

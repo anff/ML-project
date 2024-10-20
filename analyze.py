@@ -11,6 +11,7 @@ import shap
 import process_data
 import regression
 import build_model
+from sklearn.metrics import r2_score
 
 
 def run_flow(f2p):
@@ -98,20 +99,44 @@ def run_flow_ideal(f2p):
     y_train_pred = model.predict(X_train)
     train_df['pred_close'] = y_train_pred
     y_pred = model.predict(X_test)
+    y_test = gen_arr(test_df, ['Close'])
     test_df['pred_close'] = y_pred
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=train_df.Date, y=train_df.Close, name='golden'))
-    fig.add_trace(go.Scatter(x=train_df.Date, y=train_df.pred_close, name='pred_train'))
-    fig.add_trace(go.Scatter(x=test_df.Date, y=test_df.Close, name='golden'))
-    fig.add_trace(go.Scatter(x=test_df.Date, y=test_df.pred_close, name='pred_test'))
+    df = pd.concat([train_df, test_df])
+    fig.add_trace(go.Scatter(x=df.Date, y=df.Close, name='golden'))
+    # fig.add_trace(go.Scatter(x=train_df.Date, y=train_df.Close, name='train'))
+    fig.add_trace(go.Scatter(x=test_df.Date, y=y_pred, name='predict'))
     fig.show()
 
-    explainer = shap.Explainer(model, X_train)
-    shap_values = explainer(X_test)
+    # explainer = shap.Explainer(model, X_train)
+    # shap_values = explainer(X_test)
     # Visualize the SHAP values for the first prediction
-    shap.initjs()
-    shap.summary_plot(shap_values, X_test)
+    # shap.initjs()
+    # shap.summary_plot(shap_values, X_test)
+
+    acc_rmse = calculate_rmse(y_test, y_pred)
+    acc_mape = calculate_mape(y_test, y_pred)
+    acc_r2 = r2_score(y_test, y_pred)
+    print('Accuracy rmse: %f; mape %f; r2: %f' % (acc_rmse, acc_mape, acc_r2))
+
+
+#### Calculate the metrics RMSE and MAPE ####
+def calculate_rmse(y_true, y_pred):
+    """
+    Calculate the Root Mean Squared Error (RMSE)
+    """
+    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+    return rmse
+
+
+def calculate_mape(y_true, y_pred):
+    """
+    Calculate the Mean Absolute Percentage Error (MAPE) %
+    """
+    y_pred, y_true = np.array(y_pred), np.array(y_true)
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    return mape
 
 #
 # def process_data11(f2p):
