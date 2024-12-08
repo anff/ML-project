@@ -1,5 +1,4 @@
 import pandas as pd
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from matplotlib import pyplot as plt
 import ta
@@ -44,10 +43,15 @@ def print_totdata(df, col1, lb1, test_df, col2, lb2):
     plt.show()
 
 
-def genArr_lstm(df, scaler):
-    col_list = ['Open', 'High', 'Low', 'Close'] #, 'Volume']
+def genArr_lstm(df, scaler, col_list):
     df = df.iloc[:][col_list]
     df_sc = scaler.fit_transform(df)
+    X, y = data_split(df_sc)
+    return X, y
+
+
+def genArr_forlstm(yinput, scaler):
+    df_sc = scaler.fit_transform(yinput)
     X, y = data_split(df_sc)
     return X, y
 

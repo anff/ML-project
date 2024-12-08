@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch
 import numpy as np
+import copy
 import statsmodels.api as sm
 
 
@@ -15,6 +16,10 @@ def build_model(model_par=None):
         return ENet().build()
     elif glb.model == 'lstm':
         proto = BuildLstm()
+        proto.set(model_par)
+        return proto.build()
+    elif glb.model == 'arima_lstm':
+        proto = BuildArima_Lstm()
         proto.set(model_par)
         return proto.build()
 
@@ -44,15 +49,6 @@ class ENet(Model):
 class XGBModel(Model):
     def build(self):
         model = xgb.XGBRegressor(max_depth=5, n_estimators=300, learning_rate=0.05)
-        return model
-
-
-class BuildArima_Lstm(Model):
-    def build(self):
-        return self
-
-    def fit(self, X):
-        model = sm.tsa.ARIMA(endog=X, order=(2, 1, 0)).fit()
         return model
 
 
@@ -102,6 +98,27 @@ class BuildLstm(Model):
         pred = sc.inverse_transform(pred)
         y_pred = np.array(pred[:, 0]).flatten().tolist()
         return y_pred
+
+
+class BuildArima_Lstm(BuildLstm):
+    def build(self):
+        self.model = LSTMModel(**(self.model_par))
+        return self
+
+    def proc_arima(self, y_train, y_test):
+        history = list(copy.deepcopy(y_train))
+        predictions = []
+        for t in range(len(y_test)):
+            model = sm.tsa.ARIMA(history, order=(2, 1, 0)).fit()
+            yhat = model.forecast()
+            yhat = np.float(yhat[0])
+            predictions.append(yhat)
+            obs = y_test[t]
+            history.append(obs)
+
+        model_res = sm.tsa.ARIMA(history, order=(2, 1, 0)).fit()
+        return predictions, model_res.resid
+
 
 
 class LSTMModel(nn.Module):
