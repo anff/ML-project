@@ -19,4 +19,5 @@ def set_env():
 
 
 class GlobalConst:
-    model = None
+    model = 'lstm'
+    slide_window = 20

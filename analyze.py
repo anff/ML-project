@@ -4,17 +4,99 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-import ta
 import plotly.graph_objects as go
-import shap
 
 import process_data
 import regression
 import build_model
 from sklearn.metrics import r2_score
+from sklearn import metrics
+from opt import GlobalConst as glb
 
 
-def run_flow(f2p):
+def run_ml(total_df, train_df, test_df):
+    cols = ['sma', 'ema']
+    X_train = gen_arr(train_df, cols)
+    y_train = gen_arr(train_df, ['Close'])
+
+    X_test = gen_arr(test_df, cols)
+    model = build_model.build_model()
+    model.fit(X_train, y_train)
+
+    y_train_pred = model.predict(X_train)
+    train_df['pred_close'] = y_train_pred
+    y_pred = model.predict(X_test)
+    y_test = gen_arr(test_df, ['Close'])
+    test_df['pred_close'] = y_pred
+    evaluation_metric(y_test, y_pred)
+    process_data.print_totdata(total_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+
+
+def run_lstm(total_df, train_df, test_df):
+    sc = MinMaxScaler(feature_range=(0, 1))
+    X_train, y_train = process_data.genArr_lstm(train_df, sc)
+    X_test, y_test = process_data.genArr_lstm(test_df, sc)
+    model_par = {'input_size': X_train.shape[-1], 'hidden_size': 50, 'output_size': X_train.shape[-1]}
+    model = build_model.build_model(model_par)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test, sc)
+    y_test = gen_arr(test_df.iloc[glb.slide_window:], ['Close'])
+
+    evaluation_metric(y_test, y_pred)
+    test_df = test_df.iloc[glb.slide_window:]
+    test_df['pred_close'] = y_pred
+    process_data.print_totdata(total_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+
+
+# def run_arima_lstm(total_df, train_df, test_df):
+
+
+
+def gen_arr(df, cols):
+    X = np.array(df[cols])
+    return X
+
+
+def evaluation_metric(y_true, y_hat):
+    y_true = np.array(y_true).ravel()
+    y_hat = np.array(y_hat).ravel()
+    MSE = metrics.mean_squared_error(y_true, y_hat)
+    RMSE = MSE**0.5
+    MAE = metrics.mean_absolute_error(y_true, y_hat)
+    R2 = metrics.r2_score(y_true, y_hat)
+    print('MSE: %.5f' % MSE)
+    print('RMSE: %.5f' % RMSE)
+    print('MAE: %.5f' % MAE)
+    print('R2: %.5f' % R2)
+
+
+######## The following are obosoleted
+"""
+def make_indicator(df, win=12, winfast=13, winslow=26):
+    sma = ta.trend.sma_indicator(df["Close"], win)
+    ema = ta.trend.ema_indicator(df["Close"], win)
+    sto_k = ta.momentum.stochrsi_k(df["Close"])
+
+    sto_d = ta.momentum.stochrsi_d(df["Close"])
+
+    rsi = ta.momentum.rsi(df["Close"], win+2) # Need check !!!
+    macd = ta.trend.macd(df["Close"], winfast, winslow)
+    df["MA"] = df["Close"].rolling(20).mean()
+
+    disparity = 100*(df["Close"]/df["MA"])
+    indicators = (sma, ema, sto_k, sto_d, rsi, macd, disparity, df['Close'])
+    return indicators
+
+def gen_next(y_train, nsam=20):
+    # y_train, list
+    col_target = 'Close'
+    df = pd.DataFrame()
+    df[col_target] = y_train[-nsam:]
+    df1, df2 = add_indicator(df) # df1, add to train_df, df2: next predict
+    return df1, df2
+
+
+def run_flow_blind(f2p):
     # use just the past history data
     train_df, test_df = process_data.read_file(f2p)
     train_df, app_df = add_indicator(train_df)
@@ -41,104 +123,6 @@ def run_flow(f2p):
     fig.add_trace(go.Scatter(x=test_df.Date, y=y_pred, name='pred'))
     fig.show()
 
-
-def gen_next(y_train, nsam=20):
-    # y_train, list
-    col_target = 'Close'
-    df = pd.DataFrame()
-    df[col_target] = y_train[-nsam:]
-    df1, df2 = add_indicator(df) # df1, add to train_df, df2: next predict
-    return df1, df2
-
-
-def gen_arr(df, cols):
-    X = np.array(df[cols])
-    return X
-
-
-def add_indicator(df):
-    col_target = 'Close'
-    sma_window = 20
-    df['sma'] = ta.trend.sma_indicator(df[col_target], sma_window)
-    df['ema'] = ta.trend.ema_indicator(df[col_target], sma_window)
-    df[col_target] = df[col_target].shift(-1) # To make all the indicator features aligned with target
-    df_app = df.iloc[[-1]]
-    df = df.dropna()
-    return df, df_app
-
-
-def make_indicator(df, win=12, winfast=13, winslow=26):
-    sma = ta.trend.sma_indicator(df["Close"], win)
-    ema = ta.trend.ema_indicator(df["Close"], win)
-    sto_k = ta.momentum.stochrsi_k(df["Close"])
-
-    sto_d = ta.momentum.stochrsi_d(df["Close"])
-
-    rsi = ta.momentum.rsi(df["Close"], win+2) # Need check !!!
-    macd = ta.trend.macd(df["Close"], winfast, winslow)
-    df["MA"] = df["Close"].rolling(20).mean()
-
-    disparity = 100*(df["Close"]/df["MA"])
-    indicators = (sma, ema, sto_k, sto_d, rsi, macd, disparity, df['Close'])
-    return indicators
-
-
-def run_flow_ideal(f2p):
-    train_df, test_df = process_data.read_file(f2p)
-    train_df, _ = add_indicator(train_df)
-
-    cols = ['sma', 'ema']
-    X_train = gen_arr(train_df, cols)
-    y_train = gen_arr(train_df, ['Close'])
-
-    test_df, _ = add_indicator(test_df)
-    X_test = gen_arr(test_df, cols)
-    model = build_model.build_model()
-    model.fit(X_train, y_train)
-
-    y_train_pred = model.predict(X_train)
-    train_df['pred_close'] = y_train_pred
-    y_pred = model.predict(X_test)
-    y_test = gen_arr(test_df, ['Close'])
-    test_df['pred_close'] = y_pred
-
-    fig = go.Figure()
-    df = pd.concat([train_df, test_df])
-    fig.add_trace(go.Scatter(x=df.Date, y=df.Close, name='golden'))
-    # fig.add_trace(go.Scatter(x=train_df.Date, y=train_df.Close, name='train'))
-    fig.add_trace(go.Scatter(x=test_df.Date, y=y_pred, name='predict'))
-    fig.show()
-
-    # explainer = shap.Explainer(model, X_train)
-    # shap_values = explainer(X_test)
-    # Visualize the SHAP values for the first prediction
-    # shap.initjs()
-    # shap.summary_plot(shap_values, X_test)
-
-    acc_rmse = calculate_rmse(y_test, y_pred)
-    acc_mape = calculate_mape(y_test, y_pred)
-    acc_r2 = r2_score(y_test, y_pred)
-    print('Accuracy rmse: %f; mape %f; r2: %f' % (acc_rmse, acc_mape, acc_r2))
-
-
-#### Calculate the metrics RMSE and MAPE ####
-def calculate_rmse(y_true, y_pred):
-    """
-    Calculate the Root Mean Squared Error (RMSE)
-    """
-    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
-    return rmse
-
-
-def calculate_mape(y_true, y_pred):
-    """
-    Calculate the Mean Absolute Percentage Error (MAPE) %
-    """
-    y_pred, y_true = np.array(y_pred), np.array(y_true)
-    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-    return mape
-
-#
 # def process_data11(f2p):
 #     df = pd.read_csv(f2p)
 #     df['Date'] = pd.to_datetime(df['Date'])
@@ -234,3 +218,4 @@ def calculate_mape(y_true, y_pred):
 #
 # acc = round(same_count / (len(y_pred)-1) * 100, 2)
 # print("Accuracy : {}%".format(acc))
+"""

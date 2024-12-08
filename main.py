@@ -8,23 +8,29 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 
 import opt
 import analyze
-
-from plotly.subplots import make_subplots
-from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 from opt import GlobalConst as glb
+import process_data
 
 
-def main():
-    f2p = 'data/LKNCY.csv'
-    # f2p = 'data/MCD.csv'
-    glb.model = 'xgb'
+def main(f2p, model):
     opt.set_env()
-    # analyze.run_flow(f2p)
-    analyze.run_flow_ideal(f2p)
+    total_df, train_df, test_df = process_data.read_file(f2p)
+    # process_data.print_totdata(total_df, 'Close', 'Training', test_df, 'Close', "Testing")
+
+    if model == 'lstm':
+        glb.model = model
+        analyze.run_lstm(total_df, train_df, test_df)
+    else:
+        glb.model = model
+        analyze.run_ml(total_df, train_df, test_df)
 
 
 if __name__ == '__main__':
-    main()
+    f2p = 'data/LKNCY.csv'
+    # f2p = 'data/MCD.csv'
+
+    # model: enet, xgb, lstm
+    main(f2p, model='lstm')
 
 
 
