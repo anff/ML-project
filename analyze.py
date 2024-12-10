@@ -8,7 +8,7 @@ from sklearn import metrics
 from opt import GlobalConst as glb
 
 
-def run_ml(total_df, train_df, test_df):
+def run_ml(total_df, train_df, test_df, print=False):
     cols = ['sma', 'ema']
     X_train = gen_arr(train_df, cols)
     y_train = gen_arr(train_df, ['Close'])
@@ -23,10 +23,11 @@ def run_ml(total_df, train_df, test_df):
     y_test = gen_arr(test_df, ['Close'])
     test_df['pred_close'] = y_pred
     evaluation_metric(y_test, y_pred)
-    process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    if print:
+        process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
 
 
-def run_lstm(total_df, train_df, test_df):
+def run_lstm(total_df, train_df, test_df, print=False):
     sc = MinMaxScaler(feature_range=(0, 1))
     col_list = ['Open', 'High', 'Low', 'Close'] #, 'Volume']
     X_train, y_train = process_data.genArr_lstm(train_df, sc, col_list)
@@ -40,10 +41,11 @@ def run_lstm(total_df, train_df, test_df):
     evaluation_metric(y_test, y_pred)
     test_df = test_df.iloc[glb.slide_window:]
     test_df['pred_close'] = y_pred
-    process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    if print:
+        process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
 
 
-def run_arima_lstm(total_df, train_df, test_df):
+def run_arima_lstm(total_df, train_df, test_df, print=False):
     train_y = np.array(train_df['Close']).ravel()
     test_y = np.array(test_df.iloc[glb.slide_window:]['Close']).ravel()
     model_par = {'input_size': 1, 'hidden_size': 50, 'output_size': 1}
@@ -71,7 +73,8 @@ def run_arima_lstm(total_df, train_df, test_df):
     adf = {'Date': test_df['Date'],
            'Close': test_y}
     adf = pd.DataFrame(adf)
-    process_data.print_totdata(adf, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    if print:
+        process_data.print_totdata(adf, 'Close', 'golden', test_df, 'pred_close', 'predict')
 
 
 def gen_arr(df, cols):
