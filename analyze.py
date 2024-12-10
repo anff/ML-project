@@ -23,12 +23,12 @@ def run_ml(total_df, train_df, test_df):
     y_test = gen_arr(test_df, ['Close'])
     test_df['pred_close'] = y_pred
     evaluation_metric(y_test, y_pred)
-    process_data.print_totdata(total_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
 
 
 def run_lstm(total_df, train_df, test_df):
     sc = MinMaxScaler(feature_range=(0, 1))
-    col_list = ['Open', 'High', 'Low', 'Close']
+    col_list = ['Open', 'High', 'Low', 'Close'] #, 'Volume']
     X_train, y_train = process_data.genArr_lstm(train_df, sc, col_list)
     X_test, y_test = process_data.genArr_lstm(test_df, sc, col_list)
     model_par = {'input_size': X_train.shape[-1], 'hidden_size': 50, 'output_size': X_train.shape[-1]}
@@ -40,7 +40,7 @@ def run_lstm(total_df, train_df, test_df):
     evaluation_metric(y_test, y_pred)
     test_df = test_df.iloc[glb.slide_window:]
     test_df['pred_close'] = y_pred
-    process_data.print_totdata(total_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
 
 
 def run_arima_lstm(total_df, train_df, test_df):

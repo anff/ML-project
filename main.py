@@ -26,11 +26,22 @@ def main(f2p, model):
 
 
 if __name__ == '__main__':
-    f2p = 'data/LKNCY.csv'
-    # f2p = 'data/MCD.csv'
-
-    # model: enet, xgb, lstm
+    f2p = 'data/MCD.csv'
+    print(f2p)
+    # model: enet, xgb, lstm, arima_lstm
+    main(f2p, model='enet')
+    main(f2p, model='xgb')
+    main(f2p, model='lstm')
     main(f2p, model='arima_lstm')
+
+    f2p = 'data/LKNCY.csv'
+    print(f2p)
+    # model: enet, xgb, lstm, arima_lstm
+    main(f2p, model='enet')
+    main(f2p, model='xgb')
+    main(f2p, model='lstm')
+    main(f2p, model='arima_lstm')
+
 
 
 
