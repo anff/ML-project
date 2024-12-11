@@ -18,13 +18,14 @@ def run_ml(total_df, train_df, test_df, print=False):
     model.fit(X_train, y_train)
 
     y_train_pred = model.predict(X_train)
+    train_df = train_df.copy()
     train_df['pred_close'] = y_train_pred
     y_pred = model.predict(X_test)
     y_test = gen_arr(test_df, ['Close'])
+    test_df = test_df.copy()
     test_df['pred_close'] = y_pred
     evaluation_metric(y_test, y_pred)
-    if print:
-        process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    return test_df
 
 
 def run_lstm(total_df, train_df, test_df, print=False):
@@ -40,9 +41,9 @@ def run_lstm(total_df, train_df, test_df, print=False):
 
     evaluation_metric(y_test, y_pred)
     test_df = test_df.iloc[glb.slide_window:]
+    test_df = test_df.copy()
     test_df['pred_close'] = y_pred
-    if print:
-        process_data.print_totdata(test_df, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    return test_df
 
 
 def run_arima_lstm(total_df, train_df, test_df, print=False):
@@ -68,13 +69,13 @@ def run_arima_lstm(total_df, train_df, test_df, print=False):
         y_pred.append(v)
 
     evaluation_metric(test_y, y_pred)
+    test_df = test_df.copy()
     test_df = test_df.iloc[glb.slide_window:]
-    test_df['pred_close'] = y_pred
-    adf = {'Date': test_df['Date'],
-           'Close': test_y}
-    adf = pd.DataFrame(adf)
-    if print:
-        process_data.print_totdata(adf, 'Close', 'golden', test_df, 'pred_close', 'predict')
+    test_df.loc[:, 'pred_close'] = y_pred
+    # adf = {'Date': test_df['Date'],
+    #        'Close': test_y}
+    # adf = pd.DataFrame(adf)
+    return test_df
 
 
 def gen_arr(df, cols):

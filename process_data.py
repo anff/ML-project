@@ -32,15 +32,20 @@ def add_indicator(df, sma_window=glb.slide_window):
     return df
 
 
-def print_totdata(df, col1, lb1, test_df, col2, lb2):
+def print_totdata(df, col1, lb1, test_df, col2, lb2, title, show=False):
     plt.figure(figsize=(10, 6))
     plt.plot(df[col1], label=lb1)
     plt.plot(test_df[col2], label=lb2)
-    plt.title('Close price')
-    plt.xlabel('time', fontsize=15, verticalalignment='top')
-    plt.ylabel('close', fontsize=15, horizontalalignment='center')
-    plt.legend()
-    plt.show()
+    plt.xlabel('time', fontsize=20, verticalalignment='top')
+    plt.ylabel('close price', fontsize=20, horizontalalignment='center')
+    lgd = plt.legend(
+        title=title,
+        fontsize=20,
+        title_fontsize=25)
+    plt.setp(lgd.get_title(), fontweight='bold')
+    plt.savefig(glb.dir_img + '/' + title+".jpg", format='jpg', dpi=300)
+    if show:
+        plt.show()
 
 
 def genArr_lstm(df, scaler, col_list):

@@ -87,8 +87,8 @@ class BuildLstm(Model):
             # Store losses for later plotting
             train_losses.append(loss.item())
             val_losses.append(val_loss.item())
-            if (epoch + 1) % 10 == 0:
-                print(f'Epoch {epoch + 1}/{n_epochs}, Train Loss: {loss.item()}, Val Loss: {val_loss.item()}')
+            # if (epoch + 1) % 10 == 0:
+            #     print(f'Epoch {epoch + 1}/{n_epochs}, Train Loss: {loss.item()}, Val Loss: {val_loss.item()}')
 
     def predict(self, X_test, sc=None):
         model = self.model
