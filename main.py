@@ -12,12 +12,13 @@ import process_data
 
 
 def main(f2p, model):
-    tt = os.path.splitext(os.path.basename(f2p))[0]
-    tt = model + '-' + tt
+    tt1 = os.path.splitext(os.path.basename(f2p))[0]
+    tt = model + '-' + tt1
     print('\n', tt)
     opt.set_env()
     total_df, train_df, test_df = process_data.read_file(f2p)
-    # process_data.print_totdata(total_df, 'Close', 'Training', test_df, 'Close', "Testing")
+    process_data.print_totdata(total_df, 'Close', 'Training', test_df, 'Close', "Testing", tt1)
+    plt.savefig(glb.dir_img + '/' + tt1 + ".jpg", format='jpg', dpi=300)
 
     glb.model = model
     if model == 'lstm':
