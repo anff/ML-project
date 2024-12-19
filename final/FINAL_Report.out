@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Related Work}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Machine Learning Algorithms}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{ARIMA}{section.2}% 4
+\BOOKMARK [1][-]{section.3}{Apply machine learning to predict stock prices}{}% 5
+\BOOKMARK [2][-]{subsection.3.1}{Dataset}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.2}{ML methods}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.3}{Feature Engineering}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.4}{Evaluation}{section.3}% 9
+\BOOKMARK [1][-]{section.4}{Experimental Results}{}% 10
+\BOOKMARK [2][-]{subsection.4.1}{Comparison}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.2}{Graphs of Prediction}{section.4}% 12
+\BOOKMARK [1][-]{section.5}{Conclusion}{}% 13
